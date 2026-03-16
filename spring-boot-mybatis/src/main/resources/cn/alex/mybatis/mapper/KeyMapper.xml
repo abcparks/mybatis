@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.alex.mybatis.mapper.KeyMapper">
+    <resultMap id="BaseResultMap" type="cn.alex.mybatis.domain.Key">
+        <!--@mbg.generated-->
+        <!--@Table `key`-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="key_name" jdbcType="VARCHAR" property="keyName"/>
+        <result column="lock_id" jdbcType="INTEGER" property="lockId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, key_name, lock_id
+    </sql>
+
+    <!-- <setting name="mapUnderscoreToCamelCase" value="true"/> -->
+    <select id="getById" resultType="cn.alex.mybatis.domain.Key">
+        select *
+        from `key`
+        where id = #{id}
+    </select>
+
+    <!--自定义结果集-->
+    <resultMap id="keyMap" type="cn.alex.mybatis.domain.Key">
+        <id column="id" property="id"/>
+        <result column="key_name" property="keyName"/>
+        <result column="lock_id" property="lockId"/>
+        <!--1 级联属性映射-->
+        <!--<result column="lid" property="lock.id"/>
+        <result column="lock_name" property="lock.lockName"/>-->
+        <!--2 自定义封装规则
+            自定义对象的封装规则 association映射(表示联合一个对象)
+            javaType: 指定这个属性类型
+        -->
+        <association property="lock" javaType="cn.alex.mybatis.domain.Lock">
+            <id column="lid" property="id"/>
+            <result column="lock_name" property="lockName"/>
+        </association>
+    </resultMap>
+
+    <!--一对一级联查询-->
+    <select id="getKeyById" resultMap="keyMap">
+        select k.*, l.id lid, l.lock_name
+        from `key` k
+        left join `lock` l
+        on k.lock_id = l.id
+        where k.id = #{id}
+    </select>
+
+    <resultMap id="keyStepMap" type="cn.alex.mybatis.domain.Key">
+        <id column="id" property="id"/>
+        <result column="key_name" property="keyName"/>
+        <result column="lock_id" property="lockId"/>
+        <!--
+            告诉Mybatis自己调用一个查询查锁子
+            select="": 指定一个查询sql的唯一标识, Mybatis自动调用指定的sql将查出的lock封装起来
+            public Lock getByIdSimple(Integer id) 需要传入锁子id
+            告诉Mybatis把哪一列数据传递过去 column: 指定将哪一列的数据传递过去
+
+            fetchType="eager" 即时加载, fetchType="lazy" 懒加载
+
+            column="" 传入多个值: {key1=列名, key2=列名} 其中key1和key2保证和接收参数名一致
+        -->
+        <association column="lock_id" select="cn.alex.mybatis.mapper.LockMapper.getLockById"
+                     property="lock" javaType="cn.alex.mybatis.domain.Lock"/>
+    </resultMap>
+    <!--逐步获取-->
+    <select id="getKeyByIdByStep" resultMap="keyStepMap">
+        select *
+        from `key`
+        where id = #{id}
+    </select>
+
+    <!--根据锁编号获取钥匙信息-->
+    <select id="findKeyByLockId" resultMap="BaseResultMap">
+        select *
+        from `key`
+        where lock_id = #{lockId}
+    </select>
+</mapper>

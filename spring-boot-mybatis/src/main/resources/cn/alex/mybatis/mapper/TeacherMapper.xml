@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.alex.mybatis.mapper.TeacherMapper">
+    <!--使用二级缓存-->
+    <cache/>
+    <!--<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>-->
+    <resultMap id="BaseResultMap" type="cn.alex.mybatis.domain.Teacher">
+        <!--@mbg.generated-->
+        <!--@Table teacher-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="course" jdbcType="VARCHAR" property="course"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="birth" jdbcType="TIMESTAMP" property="birth"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, `name`, course, address, birth
+    </sql>
+
+    <sql id="selectSql">
+        select *
+        from teacher
+    </sql>
+
+    <select id="getById" resultType="cn.alex.mybatis.domain.Teacher">
+        <include refid="selectSql"/>
+        where id = #{id}
+    </select>
+
+    <select id="getTeacherByCondition" resultMap="BaseResultMap">
+        select *
+        from teacher
+        <!--可以帮我们去除前面的and-->
+        <where>
+            <!--
+                if 判断
+                test="": 编写判断条件
+                id != null, 取出传入的javaBean属性中的id的值, 判断是否为空
+            -->
+            <if test="id != null">
+                id > #{id}
+            </if>
+
+            <if test="name != null and name != ''">
+                <!--
+                    bind 绑定一个表达式的值到一个变量, 不常用
+                -->
+                <bind name="_name" value="'%' + name + '%'"/>
+                <!--and teacherName like concat('%', #{name}, '%')-->
+                <!--and teacherName like #{name}-->
+                and name like #{_name}
+            </if>
+            <if test="birth != null">
+                and birth &lt; #{birth}
+            </if>
+        </where>
+    </select>
+
+    <select id="getTeacherByCondition2" resultMap="BaseResultMap">
+        select *
+        from teacher
+        <!--
+            trim: 截取字符串
+            prefix="": 前缀, 为我们下面的sql整体添加一个前缀
+            prefixOverrides="": 去除整体字符串前面多余的字符
+            suffix="": 为整体添加一个后缀
+            suffixOverrides="": 后面哪个多了可以去掉
+        -->
+        <!--我们查询条件就放在where标签中, 每个and写在前面, where就能帮我们去除前面的and-->
+        <trim prefix="where" prefixOverrides="and" suffixOverrides="and">
+            <if test="id != null">
+                id > #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="birth != null">
+                and birth &lt; #{birth} and
+            </if>
+        </trim>
+    </select>
+
+    <select id="getTeacherByIdIn" resultMap="BaseResultMap">
+        <!--
+            帮我们遍历集合的
+            collection="": 指定要遍历的集合的key
+            close="": 以什么结束
+            index="": 索引, 如果遍历的是一个list, index: 指定的变量保存当前的索引
+                           如果遍历的是一个Map, index: 指定的变量就是保存当前遍历元素的key
+            item="": 变量名, 每次遍历出的元素起一个变量名方便引用
+            open="": 以什么开始
+            separator="": 每次遍历的元素分隔符
+        -->
+        select *
+        from teacher
+        <where>
+            <choose>
+                <when test="idList != null and idList.size() != 0">
+                    and id in
+                    <foreach collection="idList" item="id" open="(" close=")" separator=",">
+                        #{id}
+                    </foreach>
+                </when>
+                <otherwise>
+                    and 1 = 0
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="getTeacherByChoose" resultMap="BaseResultMap">
+        select *
+        from teacher
+        <where>
+            <choose>
+                <when test="id != null">
+                    id = #{id}
+                </when>
+                <when test="name != null and name != ''">
+                    `name` = #{name}
+                </when>
+                <when test="birth != null">
+                    `birth` <![CDATA[<]]> #{birth}
+                </when>
+            </choose>
+        </where>
+    </select>
+
+    <update id="updateBySelective">
+        update teacher
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="course != null and course != ''">
+                course = #{course},
+            </if>
+            <if test="address != null and address != ''">
+                address =#{address},
+            </if>
+            <if test="birth != null">
+                birth = #{birth}
+            </if>
+        </set>
+        <where>
+            <if test="id != null">
+                id = #{id}
+            </if>
+        </where>
+    </update>
+</mapper>

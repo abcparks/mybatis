@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.alex.mybatis.mapper.LockMapper">
+    <resultMap id="BaseResultMap" type="cn.alex.mybatis.domain.Lock">
+        <!--@mbg.generated-->
+        <!--@Table `lock`-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="lock_name" jdbcType="VARCHAR" property="lockName"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, lock_name
+    </sql>
+
+    <select id="getById" resultMap="BaseResultMap">
+        select *
+        from `lock`
+        where id = #{id}
+    </select>
+
+    <!--自定义结果集-->
+    <resultMap id="lockMap" type="cn.alex.mybatis.domain.Lock">
+        <id column="id" property="id"/>
+        <result column="lock_name" property="lockName"/>
+        <collection property="keyList" ofType="cn.alex.mybatis.domain.Key">
+            <id column="kid" property="id"/>
+            <result column="key_name" property="keyName"/>
+            <result column="id" property="lockId"/>
+
+            <!--<result column="id" property="lock.id"/>-->
+            <!--<result column="lock_name" property="lock.lockName"/>-->
+        </collection>
+    </resultMap>
+
+    <select id="getLockById" resultMap="lockMap">
+        select l.*, k.id kid, k.key_name
+        from `lock` l
+        left join `key` k on l.id = k.lock_id
+        where l.id = #{id}
+    </select>
+
+    <select id="getLock" resultMap="lockMap">
+        select l.*, k.id kid, k.key_name
+        from `lock` l
+        left join `key` k on l.id = k.lock_id
+    </select>
+
+    <resultMap id="lockStepMap" type="cn.alex.mybatis.domain.Lock">
+        <id column="id" property="id"/>
+        <result column="lock_name" property="lockName"/>
+        <collection column="id" select="cn.alex.mybatis.mapper.KeyMapper.findKeyByLockId"
+                    property="keyList" ofType="cn.alex.mybatis.domain.Key" />
+    </resultMap>
+
+    <select id="getLockByIdByStep" resultMap="lockStepMap">
+        select *
+        from `lock`
+        where id = #{id}
+    </select>
+
+    <select id="getOne2Many" resultType="java.util.Map">
+        select A.*, B.lock_name from `key` A
+        left join `lock` B on A.lock_id = B.id
+    </select>
+</mapper>

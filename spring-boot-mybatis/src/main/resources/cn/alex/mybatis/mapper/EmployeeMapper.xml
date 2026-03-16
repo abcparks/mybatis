@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.alex.mybatis.mapper.EmployeeMapper">
+    <!--
+        这个文件中能写的所有标签
+        cache: 和缓存有关
+        cache-ref: 和缓存有关
+        delete, update, insert, select: 增删改查
+        parameterMap: 参数Map 废弃的... 原本是来做复杂参数映射
+        resultMap: 结果映射, 自定义结果集的封装规则
+        sql: 抽取可重用的sql
+
+        delete, update, insert
+        databaseId: 指定这个CRUD属于那个数据库
+    -->
+
+    <!--
+        select: 用来定义一个查询操作
+        id: 方法名, 相当于是对某个方法的实现
+        resultType: 指定方法运行后的返回值类型(查询操作必须指定)
+        #{属性名}: 取出传递过来的某个参数的值
+        sql语句不要写分号, parameterType永远不用写
+    -->
+
+    <sql id="Base_Column_List">
+        id,
+        empname,
+        email,
+        gender
+    </sql>
+    <resultMap id="BaseResultMap" type="cn.alex.mybatis.domain.Employee">
+        <result column="id" property="id"/>
+        <result column="empname" property="empName"/>
+        <result column="email" property="email"/>
+        <result column="gender" property="gender"/>
+    </resultMap>
+
+    <!--根据员工编号查询员工信息-->
+    <select id="selectEmpById" resultType="cn.alex.mybatis.domain.Employee">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
+    <!--如果能精确匹配就精确, 不能就用模糊的-->
+    <select id="selectEmpById" resultType="emp" databaseId="oracle">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
+    <!--
+        增删改不用写返回值类型, 增删改是返回影响多少行
+        mybatis自动判断, 如果是数字(int,long)
+        如果是boolean(影响0行自动封装false, 否则true)
+    -->
+    <update id="updateEmployee">
+        update employee
+        set empname = #{empName},
+        gender = #{gender},
+        email = #{email}
+        where id = #{id}
+    </update>
+
+    <!--录入员工信息-->
+    <insert id="insertEmployee">
+        insert into employee
+        values (null, #{empName}, #{gender}, #{email})
+    </insert>
+
+    <!--录入员工信息, 使用selectKey自定义id-->
+    <insert id="insertSelectKey">
+        <!--
+            查询主键
+            order="BEFORE": 在核心sql语句之前先运行一个查询sql查到id, 将查到的id赋值给javaBean的哪个属性
+            查询到数据库最大的id并加1, keyProperty="id" 然后在赋值给id(对象中的id),
+            #{id}取出的就是查询最大的id再加1的值(取的入参对象的id),
+            这样就实现了代码自增id操作
+        -->
+        <selectKey order="BEFORE" keyProperty="id" resultType="integer">
+            select max(id) + 1
+            from employee
+        </selectKey>
+        insert into employee
+        values (#{id}, #{empName}, #{gender}, #{email})
+    </insert>
+
+    <!--根据员工编号删除员工信息-->
+    <delete id="deleteEmployeeById">
+        delete
+        from employee
+        where id = #{id}
+    </delete>
+
+    <!--
+        Mybatis传参
+        1 单个参数
+            基本类型: 取值#{随便}
+            传入pojo
+        2 多个参数
+            public Employee selectByIdAndEmpName(int id, String empName)
+            取值: #{参数名}是无效的
+            可用的方式: 0, 1, 2(参数索引), 或则param1, param2(paramN)
+            原因: 只要传入了多个参数, Mybatis会自动的将这些参数封装在一个Map中, 封装时用的key就是参数的索引和参数的第几个标识
+            Map<string, Object> map = new HashMap<>();
+            map.put("1", 传入的值);
+            map.put("2", 传入的值);
+            #{key}就是从map中取值
+            我们可以告诉Mybatis, 封装参数的时候使用我们指定的key
+        3 传入Map
+            取值: #{key}
+        4 传入pojo(javaBean)
+            取值: #{pojo的属性名}
+        扩展: 多个参数 自动封装Map
+        method01(@Param("id") Integer id, String name, Employee employee);
+        Integer id -> #{id}
+        String name -> #{param2}
+        Employee employee -> #{param3.email}
+
+        无论传入什么参数都要能正确的取出值
+        #{key/属性名}
+        1 #{key}取值的时候可以设置一些规则
+        id = #{id, jdbcType=INTEGER}
+        javaType, jdbcType, mode, numericScale, resultMap, typeHandler, jdbcTupeName, expression
+        只有jdbcType才可能是需要被指定的
+        默认不指定jdbcType mysql是没有问题的 oracle也没有问题
+        万一传入的数据是null
+        mysql插入null没问题
+        oracle不知道null到底是什么类型
+
+        实际在Mybatis中: 两种取值方式
+        #{属性名}: 是参数预编译方式, 参数的位置都是用?代替, 参数后来都是预编译设置进去的 安全, 不会由sql注入问题
+        ${属性名}: 不是参数预编译, 而是直接和sql语句进行拼串 不安全
+        id = ${id} and empname = #{empName}
+        select * from employee where id = 1 and empname = ?
+
+        id = ${id} and empname = ${empName}
+        select * from employee where id = 1 and empname = tomcat
+
+        一般都是使用#{} 安全, 在不支持参数预编译的位置要进行取值就使用${}
+        例如: 表名, 分库分表, 表名动态传入
+    -->
+    <select id="selectById" resultType="cn.alex.mybatis.domain.Employee">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
+    <!--如果返回的是集合, 写的是集合里面元素的类型-->
+    <select id="selectAll" resultType="cn.alex.mybatis.domain.Employee">
+        select *
+        from employee
+    </select>
+
+    <!--
+        返回一个Map, 单条记录列名作为key, 值作为value
+    -->
+    <select id="selectByIdReturnMap" resultType="java.util.Map">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
+    <!--
+        返回一个List, List中包含多个Map
+        多条记录封装Map, 列名作key, 值作value
+    -->
+    <select id="selectAllReturnMap" resultType="java.util.Map">
+        select *
+        from employee
+        <!--select empname name, count(1) c
+        from employee
+        group by empname
+        order by c desc limit 5-->
+    </select>
+
+    <!--
+        查询多个, 返回一个Map, 查询多个情况下集合中写元素类型,
+        多条记录封装Map, 必须在dao方法上指定@MapKey
+        例如: @MapKey("email") 表示以查询记录中email作为主键, 如果找不到抛出异常(ReflectionException)
+    -->
+    <select id="selectAllMapKey" resultType="cn.alex.mybatis.domain.Employee">
+        select *
+        from employee
+    </select>
+</mapper>

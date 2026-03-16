@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.alex.multiple.datasource.mapper.secondary.TTeacherMapper">
+
+    <!--新增获取主键-->
+    <insert id="insertTeacher">
+        <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Long">
+            select MYBATIS_SEQ.NEXTVAL from dual
+        </selectKey>
+        insert into T_TEACHER (ID, NAME, COURSE, ADDRESS, BIRTH)
+        values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{course,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{birth,jdbcType=TIMESTAMP})
+    </insert>
+
+    <insert id="batchInsertTeacher">
+        insert into T_TEACHER (ID, NAME, COURSE, ADDRESS, BIRTH)
+        select MYBATIS_SEQ.NEXTVAL, t.*
+        from (
+            <foreach collection="list" item="item" separator="union all">
+                select #{item.name,jdbcType=VARCHAR}, #{item.course,jdbcType=VARCHAR}, #{item.address,jdbcType=VARCHAR}, #{item.birth,jdbcType=TIMESTAMP}
+                from dual
+            </foreach>
+        ) t
+    </insert>
+
+    <!--oracle 批量插入获取主键id, 需要分步-->
+    <!--批量新增获取主键, 设置flushCache=true, 清空缓存, 防止缓存导致主键重复 -->
+    <select id="getMybatisSequence" resultType="java.lang.Long" flushCache= "true">
+        select MYBATIS_SEQ.NEXTVAL from dual
+    </select>
+
+    <insert id="batchInsertTeacherPrepared">
+        insert into T_TEACHER (ID, NAME, COURSE, ADDRESS, BIRTH)
+        <foreach collection="list" item="item" separator="union all">
+            select #{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.course,jdbcType=VARCHAR}, #{item.address,jdbcType=VARCHAR}, #{item.birth,jdbcType=TIMESTAMP}
+            from dual
+        </foreach>
+    </insert>
+
+</mapper>

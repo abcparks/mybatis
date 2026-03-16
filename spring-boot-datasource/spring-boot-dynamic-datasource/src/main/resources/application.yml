@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    primary:
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/db_mybatis?characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8
+      username: root
+      password: root
+    secondary:
+      driver-class-name: oracle.jdbc.driver.OracleDriver
+      url: jdbc:oracle:thin:@localhost:1521/orcl
+      username: ot
+      password: root
+
+mybatis:
+  # mapper.xml所在位置
+  mapper-locations: classpath:mapper/**/*Mapper.xml
+  # 实体类添加别名
+  type-aliases-package: cn.alex.domain
+  configuration:
+    # 开启支持驼峰命名
+    map-underscore-to-camel-case: true
+    # 配置打印日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

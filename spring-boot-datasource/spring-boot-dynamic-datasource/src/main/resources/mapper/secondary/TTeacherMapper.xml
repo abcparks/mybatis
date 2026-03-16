@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.alex.dynamic.datasource.mapper.secondary.TTeacherMapper">
+
+    <insert id="insertTeacher">
+        <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Long">
+            select MYBATIS_SEQ.NEXTVAL from dual
+        </selectKey>
+        insert into T_TEACHER (ID, NAME, COURSE, ADDRESS, BIRTH)
+        values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{course,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{birth,jdbcType=TIMESTAMP})
+    </insert>
+
+</mapper>

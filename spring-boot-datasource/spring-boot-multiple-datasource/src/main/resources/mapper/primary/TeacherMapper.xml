@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.alex.multiple.datasource.mapper.primary.TeacherMapper">
+
+    <!--新增获取主键-->
+    <!--用于自增主键-->
+    <!--<insert id="insertTeacher">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            select last_insert_id()
+        </selectKey>
+        insert into teacher (`name`,course,address,birth)
+        values (#{name,jdbcType=VARCHAR}, #{course,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{birth,jdbcType=TIMESTAMP})
+    </insert>-->
+
+    <insert id="insertTeacher" useGeneratedKeys="true" keyProperty="id">
+        insert into teacher (`name`, course, address, birth)
+        values (#{name,jdbcType=VARCHAR}, #{course,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{birth,jdbcType=TIMESTAMP})
+    </insert>
+
+    <!--批量新增获取主键-->
+    <!--注意: @Param里必须写成list, foreach的collection也必须写成list-->
+    <insert id="batchInsertTeacher" useGeneratedKeys="true" keyProperty="id">
+        insert into teacher (`name`, course, address, birth) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.name,jdbcType=VARCHAR}, #{item.course,jdbcType=VARCHAR}, #{item.address,jdbcType=VARCHAR}, #{item.birth,jdbcType=TIMESTAMP})
+        </foreach>
+    </insert>
+</mapper>

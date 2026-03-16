@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--1 和Spring的context: property-placeholder 引用外部配置文件-->
+    <!--
+        resource: 从类路径下开始引用
+        url: 引用磁盘路径或者网络路径资源
+    -->
+    <properties resource="dbconfig.properties"/>
+
+    <!--2 settings这个mybatis中极为重要的调整设置, 它们会改变Mybatis的运行时行为-->
+    <settings>
+        <!--name: 配置项的key, value: 配置项的值-->
+        <!--配置支持驼峰命名自动映射-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!--开启延迟加载, 注意: 这个配置必须在properties配置后面, typeAliases配置前面 -->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <!--开启全局缓存开关, Mybatis默认开启-->
+        <setting name="cacheEnabled" value="true"/>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+    </settings>
+
+    <!--3 类型别名, 为常用的类型起别名-->
+    <typeAliases>
+        <!--
+            一个typeAlias: 就是为一个javaBean起别名, 别名默认就是类名(不区分大小写)
+            alias: 设置别名
+        -->
+        <!--<typeAlias type="cn.alex.mybatis.domain.Employee" alias="emp"/>-->
+        <!--
+            批量起别名, name=""指定包名, 默认别名就是类名
+            如果某个javaBean自定义别名, 在javaBean类使用@Alias("emp")指定别名
+            我们推荐就使用全类名
+        -->
+        <package name="cn.alex.mybatis.domain"/>
+    </typeAliases>
+
+    <!--4 类型处理器-->
+    <!--<typeHandlers>
+        &lt;!&ndash;自定义类型处理器这么配置就行了&ndash;&gt;
+        <typeHandler handler=""/>
+    </typeHandlers>-->
+
+    <!--5 插件是mybatis中的一个强大功能-->
+
+    <!--
+        6 environments配置环境
+        environment: 配置一个具体的环境, 都需要一个事务管理器和数据源
+        transactionManager:
+        后来数据源和事务管理都是Spring来做
+    -->
+    <!--default="development"默认使用那个环境-->
+    <environments default="development">
+        <!--id="development"是当前环境的唯一标识-->
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <!--配置连接池-->
+            <dataSource type="POOLED">
+                <property name="driver" value="${driverClass}"/>
+                <property name="url" value="${jdbcUrl}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!--7 mybatis用来考虑数据库移植性的-->
+    <databaseIdProvider type="DB_VENDOR">
+        <!--
+            name="": 数据库厂商标识, value="": 给这些标识起一个好用的名字
+            Mysql, Oracle, SQL Server
+        -->
+        <property name="Mysql" value="mysql"/>
+        <property name="Oracle" value="oracle"/>
+        <property name="SQL Server" value="sqlserver"/>
+    </databaseIdProvider>
+
+    <!--
+        8 写好的sql映射文件需要使用mappers注册进来
+        引入我们编写的每一个接口的实现文件
+    -->
+    <mappers>
+        <!--
+            class: 直接引用接口的全类名, 可以将xml放在和dao接口同目录下, 而且文件名和接口名一致
+            resource: 在类路径下找sql映射文件
+            url: 可以从磁盘或者网络路径引用sql映射文件
+        -->
+        <!--resource表示从类路径下找资源-->
+        <!--<mapper resource="mapper/EmployeeMapper.xml"/>-->
+        <!--<mapper class="cn.alex.mybatis.mapper.EmployeeMapper"/>-->
+        <!--<mapper resource="mapper/ActionMapper.xml"/>-->
+        <!--批量注册 name="": dao所在的包名, 使用批量注册必须保证xml和dao在同一个文件夹下, 并且保证同名-->
+        <package name="cn.alex.mybatis.mapper"/>
+    </mappers>
+</configuration>
