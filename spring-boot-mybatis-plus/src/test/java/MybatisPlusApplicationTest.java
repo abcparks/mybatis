@@ -24,7 +24,7 @@ public class MybatisPlusApplicationTest {
         // 查询全部用户
         // 参数是一个Wrapper, 条件构造器
         List<User> users = userMapper.selectList(null);
-        users.forEach(System.out::println);
+        //users.forEach(System.out::println);
     }
 
     @Test
@@ -32,7 +32,7 @@ public class MybatisPlusApplicationTest {
         // 查询全部用户
         // 参数是一个Wrapper, 条件构造器
         List<User> users = userMapper.selectByName("Tom");
-        System.out.println("users = " + users);
+        //System.out.println("users = " + users);
     }
 
     /**
@@ -60,7 +60,6 @@ public class MybatisPlusApplicationTest {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.select();
         userMapper.delete(wrapper);
-
     }
 
     /**

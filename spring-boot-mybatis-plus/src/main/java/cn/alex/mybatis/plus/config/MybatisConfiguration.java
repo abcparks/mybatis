@@ -18,7 +18,7 @@ import java.util.Properties;
 /**
  * Created by WCY on 2021/4/5
  */
-@Configuration
+//@Configuration
 public class MybatisConfiguration {
     /**
      * 问题一 SpringBoot打包Mybatis无法识别实体类别名

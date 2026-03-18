@@ -11,6 +11,12 @@
 
     <artifactId>spring-boot-mybatis</artifactId>
 
+    <properties>
+        <ehcache.version>2.6.8</ehcache.version>
+        <mybatis-ehcache.version>1.0.3</mybatis-ehcache.version>
+        <jboss-vfs.version>3.2.15.Final</jboss-vfs.version>
+    </properties>
+
     <dependencies>
         <!--mysql-->
         <dependency>
@@ -38,20 +44,20 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>2.6.8</version>
+            <version>${ehcache.version}</version>
         </dependency>
         <!--mybatis-ehcache-->
         <dependency>
             <groupId>org.mybatis.caches</groupId>
             <artifactId>mybatis-ehcache</artifactId>
-            <version>1.0.3</version>
+            <version>${mybatis-ehcache.version}</version>
         </dependency>
 
         <!--org.jboss.vfs.VFS, 解决Reader entry乱码-->
         <dependency>
             <groupId>org.jboss</groupId>
             <artifactId>jboss-vfs</artifactId>
-            <version>3.2.15.Final</version>
+            <version>${jboss-vfs.version}</version>
         </dependency>
     </dependencies>
 

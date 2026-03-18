@@ -52,4 +52,5 @@ public class User {
 
     @TableLogic
     private Integer deleted;
+
 }

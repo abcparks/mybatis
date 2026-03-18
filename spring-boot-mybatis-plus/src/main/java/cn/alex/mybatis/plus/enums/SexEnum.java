@@ -24,7 +24,7 @@ public enum SexEnum {
 
     private final String sexName;
 
-    private SexEnum(Integer sex, String sexName) {
+    SexEnum(Integer sex, String sexName) {
         this.sex = sex;
         this.sexName = sexName;
     }

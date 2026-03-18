@@ -14,6 +14,11 @@ import java.util.Date;
 @Component // 一定不要忘记把处理器加入IOC容器中
 public class MyMetaObjectHandler implements MetaObjectHandler {
 
+    private static final String CREATE_USER = "createUser";
+    private static final String CREATE_TIME = "createTime";
+    private static final String UPDATE_USER = "updateUser";
+    private static final String UPDATE_TIME = "updateTime";
+
     /**
      * 插入时的填充策略
      * @param metaObject 元对象
@@ -21,8 +26,9 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         log.info("start insert fill...");
-        this.setFieldValByName("createTime", new Date(), metaObject);
-        this.setFieldValByName("updateTime", new Date(), metaObject);
+        Date currentDate = new Date();
+        this.setFieldValByName(CREATE_TIME, currentDate, metaObject);
+        this.setFieldValByName(UPDATE_TIME, currentDate, metaObject);
     }
 
     /**
@@ -32,7 +38,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void updateFill(MetaObject metaObject) {
         log.info("start update fill...");
-        this.setFieldValByName("updateTime", new Date(), metaObject);
+        this.setFieldValByName(UPDATE_TIME, new Date(), metaObject);
     }
 
 }

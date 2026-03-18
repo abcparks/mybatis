@@ -6,7 +6,11 @@ spring:
     password: root
   profiles:
     active: dev
-
+# logging.config与log-impl: org.apache.ibatis.logging.stdout.StdOutImpl 配置
+# log-impl: org.apache.ibatis.logging.stdout.StdOutImpl 只管 MyBatis 的 SQL 日志
+# logging.config 管其他所有日志
+# 如果两个都配置了, 控制台sql日志由log-impl: org.apache.ibatis.logging.stdout.StdOutImpl打印
+# 所以建议都由日志框架管理(logging.config)
 logging:
   config: classpath:logback-spring.xml
   level:
@@ -23,7 +27,7 @@ mybatis-plus:
     # 开启支持驼峰命名
     mapUnderscoreToCamelCase: true
     # 配置打印日志
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       # 设置实体类所对应表统一前缀
