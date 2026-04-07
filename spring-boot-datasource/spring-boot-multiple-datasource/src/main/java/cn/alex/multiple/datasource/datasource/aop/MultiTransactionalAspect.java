@@ -1,5 +1,6 @@
 package cn.alex.multiple.datasource.datasource.aop;
 
+import cn.alex.multiple.datasource.constant.TransactionManagerConstant;
 import cn.alex.multiple.datasource.datasource.annotation.MultiTransactional;
 import javafx.util.Pair;
 import org.aspectj.lang.annotation.*;
@@ -23,6 +24,12 @@ public class MultiTransactionalAspect {
     @Autowired
     private ApplicationContext applicationContext;
 
+    // 事务管理器集合
+    private static final String[] TRANSACTION_MANAGERS = new String[]{
+            TransactionManagerConstant.PRIMARY_TRANSACTION_MANAGER,
+            TransactionManagerConstant.SECONDARY_TRANSACTION_MANAGER
+    };
+
     // 默认事务信息
     private final DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
 
@@ -38,6 +45,9 @@ public class MultiTransactionalAspect {
     public void multiTransactional(MultiTransactional multiTransactional) {
         Stack<Pair<PlatformTransactionManager, TransactionStatus>> pairStack = new Stack<>();
         String[] transactionManagerNames = multiTransactional.value();
+        if (transactionManagerNames == null || transactionManagerNames.length == 0) {
+            transactionManagerNames = TRANSACTION_MANAGERS;
+        }
         for (String transactionManagerName : transactionManagerNames) {
             PlatformTransactionManager transactionManager = applicationContext.getBean(transactionManagerName, DataSourceTransactionManager.class);
             TransactionStatus transactionStatus = transactionManager.getTransaction(transactionDefinition);
