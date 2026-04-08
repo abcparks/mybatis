@@ -59,9 +59,9 @@ public class MultipleDatasourceApplicationTest {
         teacher.setCourse("政治思想建设");
         teacher.setAddress("南京雨花台");
         teacher.setBirth(new Date());
-        teacherService.programmaticTransactionByManager(teacher);
+        //teacherService.programmaticTransactionByManager(teacher);
         //teacherService.programmaticTransactionByTemplate(teacher);
-        //teacherService.declarativeTransaction(teacher);
+        teacherService.declarativeTransaction(teacher);
         //teacherService.declarativeTransactionByStep(teacher);
     }
 

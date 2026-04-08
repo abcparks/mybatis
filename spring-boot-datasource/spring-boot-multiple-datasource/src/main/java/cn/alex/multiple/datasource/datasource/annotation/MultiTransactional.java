@@ -1,6 +1,5 @@
 package cn.alex.multiple.datasource.datasource.annotation;
 
-import cn.alex.multiple.datasource.constant.TransactionManagerConstant;
 import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.ElementType;
@@ -16,9 +15,9 @@ import java.lang.annotation.Target;
 public @interface MultiTransactional {
 
     @AliasFor("transactionManager")
-    String[] value() default {TransactionManagerConstant.PRIMARY_TRANSACTION_MANAGER};
+    String[] value() default {};
 
     @AliasFor("value")
-    String[] transactionManager() default {TransactionManagerConstant.PRIMARY_TRANSACTION_MANAGER};
+    String[] transactionManager() default {};
 
 }

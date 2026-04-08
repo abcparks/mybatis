@@ -25,13 +25,13 @@ public class MultiTransactionalAspect {
     private ApplicationContext applicationContext;
 
     // 事务管理器集合
-    private static final String[] TRANSACTION_MANAGERS = new String[]{
+    private final String[] TRANSACTION_MANAGERS = new String[]{
             TransactionManagerConstant.PRIMARY_TRANSACTION_MANAGER,
             TransactionManagerConstant.SECONDARY_TRANSACTION_MANAGER
     };
 
     // 默认事务信息
-    private final DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
+    private final DefaultTransactionDefinition TRANSACTION_DEFINITION = new DefaultTransactionDefinition();
 
     // 每个线程一个栈
     private static final ThreadLocal<Stack<Pair<PlatformTransactionManager, TransactionStatus>>> THREAD_LOCAL = new ThreadLocal<>();
@@ -50,7 +50,7 @@ public class MultiTransactionalAspect {
         }
         for (String transactionManagerName : transactionManagerNames) {
             PlatformTransactionManager transactionManager = applicationContext.getBean(transactionManagerName, DataSourceTransactionManager.class);
-            TransactionStatus transactionStatus = transactionManager.getTransaction(transactionDefinition);
+            TransactionStatus transactionStatus = transactionManager.getTransaction(TRANSACTION_DEFINITION);
             pairStack.push(new Pair<>(transactionManager, transactionStatus));
         }
         THREAD_LOCAL.set(pairStack);
@@ -77,4 +77,5 @@ public class MultiTransactionalAspect {
         }
         THREAD_LOCAL.remove();
     }
+
 }

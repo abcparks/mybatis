@@ -42,7 +42,6 @@ public class TeacherService {
     @Autowired
     private TransactionTemplate secondaryTransactionTemplate;
 
-
     // mysql, oracle批量插入并返回主键
     public void insertTeacher(Teacher teacher) throws Exception {
         List<Teacher> teacherList = Arrays.asList(teacher.clone(), teacher.clone(), teacher.clone());
@@ -108,26 +107,27 @@ public class TeacherService {
     // 申明式事务
     // @Transactional 若存在多个事务管理器, 需指定事务管理器, 只能回滚该事务管理器管理的事务
     //@Transactional(transactionManager = "primaryTransactionManager")
-    @MultiTransactional(value = {TransactionManagerConstant.PRIMARY_TRANSACTION_MANAGER, TransactionManagerConstant.SECONDARY_TRANSACTION_MANAGER})
+    //@MultiTransactional(value = {TransactionManagerConstant.PRIMARY_TRANSACTION_MANAGER, TransactionManagerConstant.SECONDARY_TRANSACTION_MANAGER})
+    @MultiTransactional
     public void declarativeTransaction(Teacher teacher) {
         // 所有的业务
         teacherMapper.insertTeacher(teacher);
         tTeacherMapper.insertTeacher(teacher);
-        //int result = 1 / 0;
+        int result = 1 / 0;
     }
 
     // 需要获取Spring代理对象
     @Autowired
     private TeacherService teacherService;
 
-    @Transactional(transactionManager = "primaryTransactionManager")
+    @Transactional(rollbackFor = Exception.class, transactionManager = "primaryTransactionManager")
     public void declarativeTransactionByStep(Teacher teacher) {
         teacherMapper.insertTeacher(teacher);
         //declarativeTransactionByStep2(teacher); // declarativeTransactionByStep2不会回滚
         teacherService.declarativeTransactionByStep2(teacher);
     }
 
-    @Transactional(transactionManager = "secondaryTransactionManager")
+    @Transactional(rollbackFor = Exception.class, transactionManager = "secondaryTransactionManager")
     public void declarativeTransactionByStep2(Teacher teacher) {
         tTeacherMapper.insertTeacher(teacher);
         int result = 1 / 0;
